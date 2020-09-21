@@ -1,20 +1,22 @@
 defmodule ExAdvent.Y2015.Day02 do
   def solve_part1 do
-    File.read!("inputs/y2015/day02")
-    |> String.trim()
-    |> String.split()
+    input()
     |> Enum.map(&sqft_paper_required/1)
     |> Enum.sum()
     |> IO.puts()
   end
 
   def solve_part2 do
-    File.read!("inputs/y2015/day02")
-    |> String.trim()
-    |> String.split()
+    input()
     |> Enum.map(&length_ribbon_required/1)
     |> Enum.sum()
     |> IO.puts()
+  end
+
+  def input do
+    File.read!("inputs/y2015/day02")
+    |> String.trim()
+    |> String.split()
   end
 
   def sqft_paper_required(dimensions) do

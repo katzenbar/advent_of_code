@@ -1,16 +1,20 @@
 defmodule ExAdvent.Y2015.Day01 do
   def solve_part1 do
-    File.read!("inputs/y2015/day01")
-    |> String.trim()
+    input()
     |> part1()
     |> IO.puts()
   end
 
   def solve_part2 do
-    File.read!("inputs/y2015/day01")
-    |> String.trim()
+    input()
     |> part2()
     |> IO.puts()
+  end
+
+  @spec input :: binary
+  def input do
+    File.read!("inputs/y2015/day01")
+    |> String.trim()
   end
 
   @spec part1(binary) :: number
