@@ -1,15 +1,15 @@
 defmodule ExAdvent.Y2015.Day06 do
   def solve_part1 do
-    input()
-    |> Enum.map(&parse_instruction/1)
-    |> Enum.reduce(MapSet.new(), &execute_instruction/2)
-    |> MapSet.size()
-    |> IO.puts()
+    solve(&next_value_pt1/2)
   end
 
   def solve_part2 do
+    solve(&next_value_pt2/2)
+  end
+
+  def solve(nex_value_fn) do
     input()
-    |> Enum.reduce(%{}, &execute_instruction_pt2/2)
+    |> Enum.reduce(%{}, fn inst, grid -> execute_instruction(inst, grid, nex_value_fn) end)
     |> Map.values()
     |> Enum.sum()
     |> IO.puts()
@@ -19,28 +19,6 @@ defmodule ExAdvent.Y2015.Day06 do
     File.read!("inputs/y2015/day06")
     |> String.trim()
     |> String.split("\n")
-  end
-
-  def execute_instruction({action, start_x, start_y, end_x, end_y}, grid) do
-    Enum.flat_map(start_x..end_x, fn x -> Enum.map(start_y..end_y, fn y -> {x, y} end) end)
-    |> Enum.reduce(grid, &take_action(action, &1, &2))
-  end
-
-  def take_action(:on, {x, y}, grid) do
-    MapSet.put(grid, "#{x},#{y}")
-  end
-
-  def take_action(:off, {x, y}, grid) do
-    MapSet.delete(grid, "#{x},#{y}")
-  end
-
-  def take_action(:toggle, {x, y}, grid) do
-    key = "#{x},#{y}"
-
-    case MapSet.member?(grid, key) do
-      true -> MapSet.delete(grid, key)
-      false -> MapSet.put(grid, key)
-    end
   end
 
   def parse_instruction(instruction) do
@@ -71,27 +49,43 @@ defmodule ExAdvent.Y2015.Day06 do
     :toggle
   end
 
-  def execute_instruction_pt2(instruction, grid) do
+  @spec execute_instruction(binary, map(), function()) :: map()
+  def execute_instruction(instruction, grid, next_value_fn) do
     {action, start_x, start_y, end_x, end_y} = parse_instruction(instruction)
 
     Enum.flat_map(start_x..end_x, fn x -> Enum.map(start_y..end_y, fn y -> {x, y} end) end)
     |> Enum.reduce(
       grid,
       fn {x, y}, grid ->
-        {_, next_grid} = Map.get_and_update(grid, "#{x},#{y}", &next_value(action, &1))
+        {_, next_grid} = Map.get_and_update(grid, "#{x},#{y}", &next_value_fn.(action, &1))
         next_grid
       end
     )
   end
 
-  def next_value(:on, current_value) do
+  def next_value_pt1(:on, current_value) do
+    {current_value, 1}
+  end
+
+  def next_value_pt1(:off, current_value) do
+    {current_value, 0}
+  end
+
+  def next_value_pt1(:toggle, current_value) do
+    case current_value do
+      1 -> {current_value, 0}
+      _ -> {current_value, 1}
+    end
+  end
+
+  def next_value_pt2(:on, current_value) do
     case current_value do
       nil -> {nil, 1}
       _ -> {current_value, current_value + 1}
     end
   end
 
-  def next_value(:off, current_value) do
+  def next_value_pt2(:off, current_value) do
     case current_value do
       nil -> {nil, 0}
       0 -> {0, 0}
@@ -99,7 +93,7 @@ defmodule ExAdvent.Y2015.Day06 do
     end
   end
 
-  def next_value(:toggle, current_value) do
+  def next_value_pt2(:toggle, current_value) do
     case current_value do
       nil -> {nil, 2}
       _ -> {current_value, current_value + 2}
