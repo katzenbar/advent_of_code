@@ -5,6 +5,12 @@ defmodule ExAdvent.Y2015.Day08 do
     |> IO.puts()
   end
 
+  def solve_part2 do
+    input()
+    |> part2()
+    |> IO.puts()
+  end
+
   def input do
     File.read!("inputs/y2015/day08")
     |> String.trim()
@@ -24,8 +30,26 @@ defmodule ExAdvent.Y2015.Day08 do
     unescaped - escaped
   end
 
+  def part2(input) do
+    unescaped = input |> Enum.map(&String.length/1) |> Enum.sum()
+
+    encoded =
+      input
+      |> Enum.map(&encoded_character_count/1)
+      |> Enum.sum()
+
+    encoded - unescaped
+  end
+
   def replace_escaped_characters(str) do
     str
     |> String.replace(~r/(\\x..)|(\\\")|(\\\\)/, "?")
+  end
+
+  def encoded_character_count(str) do
+    2 +
+      (str
+       |> String.replace(["\"", "\\"], "??")
+       |> String.length())
   end
 end

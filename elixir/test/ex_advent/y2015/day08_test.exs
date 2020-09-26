@@ -34,4 +34,26 @@ defmodule ExAdvent.Y2015.Day08Test do
 
     assert part1(input) == 12
   end
+
+  test "encoded_character_count = \"\"" do
+    assert encoded_character_count("\"\"") == 6
+  end
+
+  test "encoded_character_count = \"abc\"" do
+    assert encoded_character_count("\"abc\"") == 9
+  end
+
+  test "encoded_character_count - \"aaa\\\"aaa\"" do
+    assert encoded_character_count("\"aaa\\\"aaa\"") == 16
+  end
+
+  test "encoded_character_count - \"\\x27\"" do
+    assert encoded_character_count("\"\\x27\"") == 11
+  end
+
+  test "part2 - example" do
+    input = ["\"\"", "\"abc\"", "\"aaa\\\"aaa\"", "\"\\x27\""]
+
+    assert part2(input) == 19
+  end
 end
