@@ -2,6 +2,16 @@
 
 Solutions for Advent of Code written in Elixir.
 
+## Generate Files
+
+To generate files for a new day, use
+
+```bash
+mix generate 2016 1
+```
+
+Where 2016 is the year and 1 is the day.
+
 ## Tests
 
 To run all tests, use
