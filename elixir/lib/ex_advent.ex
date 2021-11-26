@@ -1,2 +1,0 @@
-defmodule ExAdvent do
-end
