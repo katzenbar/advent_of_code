@@ -34,16 +34,16 @@ defmodule ExAdvent.Y2018.Day09 do
   def get_winning_score(game_parameters) do
     game_parameters
     |> play_game()
-    |> elem(3)
+    |> elem(1)
     |> Map.values()
     |> Enum.max()
   end
 
   def play_game(game_parameters) do
-    initial_state = {0, 0, [2, 1, 0], %{}}
+    initial_state = {[0], %{}}
     {_, last_marble_value} = game_parameters
 
-    3..last_marble_value
+    1..last_marble_value
     |> Enum.reduce(initial_state, fn marble, game_state ->
       play_marble(marble, game_state, game_parameters)
     end)
@@ -51,45 +51,36 @@ defmodule ExAdvent.Y2018.Day09 do
 
   defp play_marble(marble, game_state, {num_players, _})
        when rem(marble, 23) == 0 do
-    # inspect_current_state(game_state)
+    # inspect_current_state(game_state, game_parameters)
 
-    {current_marble_index, current_player, marbles, point_map} = game_state
+    {marbles, point_map} = game_state
+    current_player = rem(marble, num_players)
 
     # Remove the marble
-    remove_idx = rem(current_marble_index - 7 + length(marbles), length(marbles))
-    removed_value = Enum.at(marbles, remove_idx)
-    marbles = List.delete_at(marbles, remove_idx)
+    {end_marbles, [removed_value | start_marbles]} = Enum.split(marbles, -7)
+    marbles = Enum.concat(start_marbles, end_marbles)
 
     # Give the player points
     point_map = Map.update(point_map, current_player, marble + removed_value, &(&1 + marble + removed_value))
 
-    current_marble_index = remove_idx
-    current_player = rem(current_player + 1, num_players)
-
-    {current_marble_index, current_player, marbles, point_map}
+    {marbles, point_map}
   end
 
-  defp play_marble(marble, game_state, {num_players, _}) do
-    # inspect_current_state(game_state)
+  defp play_marble(marble, game_state, _) do
+    # inspect_current_state(game_state, game_parameters)
 
-    {current_marble_index, current_player, marbles, point_map} = game_state
+    {marbles, point_map} = game_state
 
-    insert_idx =
-      case length(marbles) do
-        1 -> 1
-        _ -> rem(current_marble_index + 2, length(marbles))
-      end
+    {end_marbles, start_marbles} = Enum.split(marbles, 2)
+    marbles = Enum.concat([marble | start_marbles], end_marbles)
 
-    marbles = List.insert_at(marbles, insert_idx, marble)
-
-    current_marble_index = insert_idx
-    current_player = rem(current_player + 1, num_players)
-
-    {current_marble_index, current_player, marbles, point_map}
+    {marbles, point_map}
   end
 
-  def inspect_current_state(game_state) do
-    {current_marble_index, current_player, marbles, point_map} = game_state
+  def inspect_current_state(game_state, {num_players, _}) do
+    {marbles, point_map} = game_state
+    [marble | _] = marbles
+    current_player = rem(marble, num_players)
 
     zero_idx = Enum.find_index(marbles, &(&1 == 0))
 
@@ -98,7 +89,7 @@ defmodule ExAdvent.Y2018.Day09 do
       |> Enum.map(fn base_idx ->
         idx = rem(base_idx + zero_idx, length(marbles))
         value = Enum.at(marbles, idx)
-        is_current = current_marble_index == idx
+        is_current = 0 == idx
 
         if is_current, do: "(#{value})", else: "#{value}"
       end)
