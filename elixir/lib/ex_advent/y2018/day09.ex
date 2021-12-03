@@ -1,5 +1,5 @@
 defmodule ExAdvent.Y2018.Day09 do
-  @debug false
+  alias ExAdvent.Util.CircleZipper, as: CircleZipper
 
   def solve_part1 do
     input()
@@ -40,7 +40,9 @@ defmodule ExAdvent.Y2018.Day09 do
   end
 
   def play_game(game_parameters) do
-    initial_state = {[0], %{}}
+    zipper = CircleZipper.new(0)
+    initial_state = {zipper, %{}}
+
     {_, last_marble_value} = game_parameters
 
     1..last_marble_value
@@ -49,7 +51,7 @@ defmodule ExAdvent.Y2018.Day09 do
     end)
   end
 
-  defp play_marble(marble, game_state, {num_players, _})
+  defp play_marble(marble, game_state, game_parameters = {num_players, _})
        when rem(marble, 23) == 0 do
     # inspect_current_state(game_state, game_parameters)
 
@@ -57,8 +59,9 @@ defmodule ExAdvent.Y2018.Day09 do
     current_player = rem(marble, num_players)
 
     # Remove the marble
-    {end_marbles, [removed_value | start_marbles]} = Enum.split(marbles, -7)
-    marbles = Enum.concat(start_marbles, end_marbles)
+    marbles = Enum.reduce(1..7, marbles, fn _, marbles -> CircleZipper.rotate_ccw(marbles) end)
+    removed_value = CircleZipper.current_value(marbles)
+    marbles = CircleZipper.remove(marbles)
 
     # Give the player points
     point_map = Map.update(point_map, current_player, marble + removed_value, &(&1 + marble + removed_value))
@@ -66,30 +69,34 @@ defmodule ExAdvent.Y2018.Day09 do
     {marbles, point_map}
   end
 
-  defp play_marble(marble, game_state, _) do
+  defp play_marble(marble, game_state, game_parameters) do
     # inspect_current_state(game_state, game_parameters)
 
     {marbles, point_map} = game_state
 
-    {end_marbles, start_marbles} = Enum.split(marbles, 2)
-    marbles = Enum.concat([marble | start_marbles], end_marbles)
+    marbles =
+      marbles
+      |> CircleZipper.rotate_cw()
+      |> CircleZipper.insert(marble)
 
     {marbles, point_map}
   end
 
   def inspect_current_state(game_state, {num_players, _}) do
     {marbles, point_map} = game_state
-    [marble | _] = marbles
-    current_player = rem(marble, num_players)
 
-    zero_idx = Enum.find_index(marbles, &(&1 == 0))
+    current_marble = CircleZipper.current_value(marbles)
+    current_player = rem(current_marble, num_players)
+    marbles_list = CircleZipper.to_list(marbles)
+
+    zero_idx = Enum.find_index(marbles_list, &(&1 == 0))
 
     marbles_str =
-      0..(length(marbles) - 1)
+      0..(length(marbles_list) - 1)
       |> Enum.map(fn base_idx ->
-        idx = rem(base_idx + zero_idx, length(marbles))
-        value = Enum.at(marbles, idx)
-        is_current = 0 == idx
+        idx = rem(base_idx + zero_idx, length(marbles_list))
+        value = Enum.at(marbles_list, idx)
+        is_current = value == current_marble
 
         if is_current, do: "(#{value})", else: "#{value}"
       end)
