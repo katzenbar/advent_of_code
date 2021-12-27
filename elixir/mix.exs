@@ -5,7 +5,7 @@ defmodule ExAdvent.MixProject do
     [
       app: :elixir,
       version: "0.1.0",
-      elixir: "~> 1.10",
+      elixir: "~> 1.13.1",
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
@@ -19,7 +19,8 @@ defmodule ExAdvent.MixProject do
 
   defp deps do
     [
-      {:jason, "~> 1.2"}
+      {:jason, "~> 1.2"},
+      {:heap, "~> 2.0.2"}
     ]
   end
 end
