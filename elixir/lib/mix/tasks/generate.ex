@@ -79,6 +79,7 @@ defmodule Mix.Tasks.Generate do
             def parse_input(input) do
               input
               |> String.trim()
+              |> String.split("\\n")
             end
           end
           """,
@@ -107,10 +108,18 @@ defmodule Mix.Tasks.Generate do
 
             import ExAdvent.Y#{year}.Day#{padded_day}
 
-            test "parse input" do
-              input = ""
-              assert parse_input(input) == ""
-            end
+              def sample_input() do
+                ~s\"""
+                \"""
+              end
+
+              def parsed_sample_input() do
+                parse_input(sample_input())
+              end
+
+              test "parse input" do
+                assert parsed_sample_input() == ""
+              end
           end
           """,
           [:write]
